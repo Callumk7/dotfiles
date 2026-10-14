@@ -1,5 +1,6 @@
 # Repository documentation is not a home-directory dotfile.
 README.md
+Brewfile
 
 # Keep Neovim's existing repository metadata local.
 .config/nvim/.git

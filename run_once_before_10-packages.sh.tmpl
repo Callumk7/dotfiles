@@ -1,0 +1,59 @@
+#!/bin/sh
+set -eu
+
+{{ if eq .chezmoi.os "darwin" -}}
+# Brewfile hash: {{ include "Brewfile" | sha256sum }}
+if command -v brew >/dev/null 2>&1; then
+    brew_bin=$(command -v brew)
+elif [ -x /opt/homebrew/bin/brew ]; then
+    brew_bin=/opt/homebrew/bin/brew
+elif [ -x /usr/local/bin/brew ]; then
+    brew_bin=/usr/local/bin/brew
+else
+    printf '%s\n' 'Homebrew is missing. Install it manually, then rerun chezmoi apply.' >&2
+    exit 1
+fi
+
+# No explicit upgrades or cleanup. Installing missing packages can update dependencies.
+HOMEBREW_NO_AUTO_UPDATE=1 "$brew_bin" bundle install --no-upgrade --file={{ joinPath .chezmoi.sourceDir "Brewfile" | quote }}
+{{ else if eq .chezmoi.os "linux" -}}
+if [ ! -r /etc/os-release ]; then
+    printf '%s\n' 'Cannot identify Linux distribution; stopping.' >&2
+    exit 1
+fi
+. /etc/os-release
+if [ "${ID:-}" != fedora ]; then
+    printf '%s\n' 'This bootstrap currently supports Fedora Linux only; stopping.' >&2
+    exit 1
+fi
+if ! command -v dnf >/dev/null 2>&1; then
+    printf '%s\n' 'dnf is missing; stopping.' >&2
+    exit 1
+fi
+
+# Shell/editor essentials, native plugin builds, and Erlang source-build prerequisites.
+# Mason owns language servers and formatters; optional Erlang GUI/Java components
+# are not included in this headless-server package list.
+set -- zsh git ca-certificates neovim ripgrep tree-sitter-cli \
+    gcc gcc-c++ make autoconf perl pkgconf-pkg-config \
+    ncurses-devel openssl openssl-devel \
+    tar gzip unzip xz patch diffutils findutils which
+
+# Fedora's minimal container already supplies curl through curl-minimal.
+if ! command -v curl >/dev/null 2>&1; then
+    set -- "$@" curl-minimal
+fi
+
+if [ "$(id -u)" -eq 0 ]; then
+    dnf install -y "$@"
+elif command -v sudo >/dev/null 2>&1; then
+    printf '%s\n' 'Installing Fedora system packages with sudo.'
+    sudo dnf install -y "$@"
+else
+    printf '%s\n' 'System packages require root or sudo; stopping.' >&2
+    exit 1
+fi
+{{ else -}}
+printf '%s\n' 'Unsupported operating system; stopping.' >&2
+exit 1
+{{ end -}}
