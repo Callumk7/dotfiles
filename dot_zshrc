@@ -1,0 +1,33 @@
+# Portable interactive shell baseline.
+export EDITOR=nvim
+export VISUAL=nvim
+
+# Keep PATH entries unique.
+typeset -U path
+path=("$HOME/.local/bin" $path)
+
+# Temporary: retain asdf until mise has been installed and verified.
+if [[ -d "$HOME/.asdf/shims" ]]; then
+  path=("${ASDF_DATA_DIR:-$HOME/.asdf}/shims" $path)
+fi
+export PATH
+
+# History shared between interactive shells.
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt APPEND_HISTORY SHARE_HISTORY HIST_IGNORE_SPACE HIST_IGNORE_DUPS
+
+# Standard zsh completion and a dependency-free prompt.
+autoload -Uz compinit
+compinit
+PROMPT='%n@%m %~ %# '
+
+alias vim='nvim'
+alias cl='clear'
+alias ll='ls -lh'
+
+# Secrets and machine-specific settings stay outside the dotfiles repository.
+if [[ -r "$HOME/.config/zsh/local.zsh" ]]; then
+  source "$HOME/.config/zsh/local.zsh"
+fi
