@@ -1,0 +1,9 @@
+[user]
+    name = Callum Kloos
+    email = calumkloos@gmail.com
+[init]
+    defaultBranch = main
+[push]
+    autoSetupRemote = true
+[merge]
+    conflictstyle = zdiff3

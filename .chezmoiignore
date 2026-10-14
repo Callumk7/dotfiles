@@ -1,0 +1,5 @@
+# Repository documentation is not a home-directory dotfile.
+README.md
+
+# Private machine-specific configuration must never be managed.
+.config/zsh/local.zsh
