@@ -38,7 +38,8 @@ if (( ! $+functions[omz] )) && [[ -r "${ZSH:-$HOME/.oh-my-zsh}/oh-my-zsh.sh" ]];
   export ZSH="${ZSH:-$HOME/.oh-my-zsh}"
   ZSH_THEME="${ZSH_THEME:-robbyrussell}"
   if (( ! ${+plugins} )); then
-    plugins=(git)
+    # fzf-tab must precede widget wrappers; syntax highlighting loads last.
+    plugins=(git zoxide fzf fzf-tab zsh-autosuggestions zsh-interactive-cd zsh-syntax-highlighting)
   fi
   # Keep the bootstrapped version stable; updates are deliberate.
   zstyle ':omz:update' mode disabled
