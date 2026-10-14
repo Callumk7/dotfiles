@@ -45,3 +45,21 @@ if (( ! $+functions[omz] )) && [[ -r "${ZSH:-$HOME/.oh-my-zsh}/oh-my-zsh.sh" ]];
   zstyle ':omz:update' mode disabled
   source "$ZSH/oh-my-zsh.sh"
 fi
+
+# Shared conveniences, loaded after framework defaults.
+if command -v eza >/dev/null 2>&1; then
+  alias ls='eza -a --icons --sort=ext --group-directories-first'
+  alias ll='eza -l -a --icons --sort=ext --group-directories-first'
+  alias lts='eza --tree --level=2 --icons --sort=ext --group-directories-first --git-ignore'
+  alias lt='eza --tree --icons --sort=ext --group-directories-first --git-ignore'
+  alias lta='eza --tree --icons --sort=ext --group-directories-first'
+  alias lg='eza -l --tree --git --icons --sort=ext --group-directories-first --git-ignore'
+  alias lga='eza -l --tree --git --icons --sort=ext --group-directories-first'
+fi
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat'
+  alias package='cat package.json'
+fi
+if command -v lazygit >/dev/null 2>&1; then
+  alias lz='lazygit'
+fi

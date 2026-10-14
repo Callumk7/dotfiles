@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 
+# Mise config hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+
 export PATH="$HOME/.local/bin:$PATH"
 # Homebrew paths are relevant only on macOS, never Fedora.
 if [ "$(uname -s)" = Darwin ]; then
