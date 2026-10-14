@@ -1,30 +1,38 @@
 # dotfiles
 
-Personal baseline dotfiles managed by chezmoi, with development runtimes managed by mise.
+Personal baseline dotfiles managed by chezmoi, with development runtimes and lazygit managed by mise.
 
 ## Platforms
 
 - **Fedora Server (first target):** dnf installs shell/editor packages and build prerequisites. Homebrew is never used on Linux.
-- **macOS:** install Homebrew and Xcode Command Line Tools manually first. The Brewfile installs chezmoi, mise, Neovim, ripgrep, fzf, zoxide, and the Tree-sitter CLI required for Neovim parser builds.
+- **macOS:** install Homebrew and Xcode Command Line Tools manually first. The Brewfile installs chezmoi, mise, Neovim, ripgrep, fzf, zoxide, eza, bat, Delta, gh, glab, and the Tree-sitter CLI required for Neovim parser builds. Fedora uses dnf for the equivalent system tools. Lazygit comes from mise on both platforms, avoiding a Fedora COPR repository.
 
 ## Bootstrap safety
 
 Before every apply, review `chezmoi diff`. The repository includes scripts that install packages:
 
 1. `run_once_before_10-packages.sh.tmpl` runs before dotfiles are written. On Fedora it runs `dnf install` as root, or `sudo dnf install` as a regular user. On macOS it runs `brew bundle install --no-upgrade`; installing missing packages can still update dependencies.
-2. `run_once_after_20-mise.sh` runs after the mise config is written. It installs mise from https://mise.run only when missing, then runs `mise install` from the home directory.
+2. `run_once_after_20-mise.sh.tmpl` runs after the mise config is written. It installs mise from https://mise.run only when missing, then runs `mise install` from the home directory. The rendered script includes a config checksum, so changing managed tool versions or adding tools triggers installation.
 
 3. `run_once_after_30-oh-my-zsh.sh` clones Oh My Zsh at a recorded commit when missing, then installs missing autosuggestions, fzf-tab, and syntax-highlighting plugins from their current default branches without commit pins. Existing framework/plugin checkouts are untouched and never auto-updated. It does not run the standard installer or rewrite `.zshrc`.
 
 These scripts do not change the login shell, uninstall old version managers, or copy private configuration. They stop on failures. Do not run apply until package installation and any required sudo use have been approved.
 
-`run_once` means once per successful rendered-script content hash. Editing a script can cause it to run again. Brewfile changes also change the macOS package script's hash. After changing runtime versions, run `mise install` explicitly; the plain after-script does not rerun merely because the mise config changed.
+`run_once` means once per successful rendered-script content hash. Editing a script can cause it to run again. Brewfile changes also change the macOS package script's hash. Managed mise config changes change the after-script's hash and rerun `mise install` on the next approved apply. This installs newly declared tools without upgrading the pinned runtimes.
 
 ## Neovim
 
 The existing NvChad configuration and `lazy-lock.json` are tracked. The initial lazy.nvim clone uses the commit in that lockfile. Restore locked plugin versions with `:Lazy restore`; do not use `:Lazy update` during bootstrap verification.
 
 Mason owns language-server and formatter installation. Install the required tools through `:Mason`; enabling a server in the config does not itself declare a Mason installation list. Some tools also need runtimes such as Java or .NET, which are not installed by this first-pass bootstrap. On Fedora, native Neovim plugins and Erlang source builds use the provided compiler/build packages. Optional Erlang GUI/Java build components are not included.
+
+## Shell and Git conveniences
+
+Shared aliases provide eza's `ls`, `ll`, `lts`, `lt`, `lta`, `lg`, and `lga`; bat's `cat` and `package`; and lazygit's `lz`. They are enabled only when their commands exist and load after framework defaults. These named shared aliases take precedence over earlier definitions, including private-overlay definitions. eza icons need a compatible font in the connecting terminal, not fonts installed on the headless server.
+
+Lazygit 0.66.0 is managed by mise. Its existing Delta diff-renderer config is shared at native paths: `~/.config/lazygit/config.yml` on Linux and `~/Library/Application Support/lazygit/config.yml` on macOS. Only configuration is tracked, not lazygit state or pull-request caches.
+
+GitHub and GitLab authentication stays private. Authenticate separately on each machine with `gh auth login` and `glab auth login`; never add their credential files to chezmoi.
 
 ## Private machine configuration
 

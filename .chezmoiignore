@@ -8,3 +8,12 @@ Brewfile
 
 # Private machine-specific configuration must never be managed.
 .config/zsh/local.zsh
+
+# Lazygit uses different native config locations on macOS and Linux.
+{{ if eq .chezmoi.os "darwin" -}}
+.config/lazygit
+.config/lazygit/**
+{{ else -}}
+Library
+Library/**
+{{ end -}}
