@@ -6,10 +6,6 @@ export VISUAL=nvim
 typeset -U path
 path=("$HOME/.local/bin" $path)
 
-# Temporary: retain asdf until mise has been installed and verified.
-if [[ -d "$HOME/.asdf/shims" ]]; then
-  path=("${ASDF_DATA_DIR:-$HOME/.asdf}/shims" $path)
-fi
 export PATH
 
 # History shared between interactive shells.
@@ -26,6 +22,11 @@ PROMPT='%n@%m %~ %# '
 alias vim='nvim'
 alias cl='clear'
 alias ll='ls -lh'
+
+# Activate development tools before loading private local overrides.
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate zsh)"
+fi
 
 # Secrets and machine-specific settings stay outside the dotfiles repository.
 if [[ -r "$HOME/.config/zsh/local.zsh" ]]; then
