@@ -24,7 +24,18 @@ These scripts do not change the login shell, uninstall old version managers, or 
 
 The existing NvChad configuration and `lazy-lock.json` are tracked. The initial lazy.nvim clone uses the commit in that lockfile. Restore locked plugin versions with `:Lazy restore`; do not use `:Lazy update` during bootstrap verification.
 
-Mason owns language-server and formatter installation. Install the required tools through `:Mason`; enabling a server in the config does not itself declare a Mason installation list. Some tools also need runtimes such as Java or .NET, which are not installed by this first-pass bootstrap. On Fedora, native Neovim plugins and Erlang source builds use the provided compiler/build packages. Optional Erlang GUI/Java build components are not included.
+Mason owns language-server and formatter installation, not the machine bootstrap. The baseline is declared in `lua/configs/mason-tools.lua` and installed explicitly inside Neovim with `:MasonToolsInstall`. Startup installs and automatic tool updates are disabled. The command installs missing tools without upgrading existing unpinned tools; use `:MasonToolsUpdate` only when deliberately requesting updates.
+
+The shared list contains only:
+
+- Lua: `lua-language-server`, `stylua`.
+- Web: `html-lsp`, `css-lsp`, `json-lsp`, `typescript-language-server`, `tailwindcss-language-server`.
+- Formatting: `biome`, `prettier`, `shfmt`.
+- Bash/Elixir: `bash-language-server`, `elixir-ls`.
+
+The helper plugin itself is recorded in `lazy-lock.json`; it may be downloaded by lazy.nvim when first opening the updated editor, but no language servers or formatters are installed until the explicit command. Individual tool versions are not pinned by the lazy.nvim lockfile. The baseline uses the Node and Erlang/Elixir runtimes already provided by mise.
+
+Use `:Mason` to install additional machine-specific tools. Existing LSP/formatter configurations remain available, and extra installed tools are not removed by `:MasonToolsInstall`. Do not run `:MasonToolsClean`: it removes tools outside the baseline list. Some optional tools need runtimes such as Java or .NET, which are not installed by this bootstrap. On Fedora, native Neovim plugins and Erlang source builds use the provided compiler/build packages. Optional Erlang GUI/Java build components are not included.
 
 ## Shell and Git conveniences
 
